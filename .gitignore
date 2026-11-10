@@ -19,6 +19,11 @@
 
 # production
 /build
+/dist/nanal-ios-staging/
+
+# Capacitor local
+ios/App/Pods/
+ios/App/App/public/cordova*
 
 # misc
 .DS_Store

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { Photo, Project } from "@/lib/types";
 import { compressImageFile, formatDayLabel } from "@/lib/image";
+import { pickPhotoForNanal } from "@/lib/native-photo";
 
 type Entry = {
   id: string | null;
@@ -27,6 +28,7 @@ export function DaySheet({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [permError, setPermError] = useState<string | null>(null);
   const [viewer, setViewer] = useState<Photo | null>(null);
   const [pending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -70,23 +72,48 @@ export function DaySheet({
     }
   }
 
+  async function uploadDataUrl(dataUrl: string) {
+    const res = await fetch("/api/photos", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ day, data_url: dataUrl }),
+    });
+    if (!res.ok) return;
+    const photo = (await res.json()) as Photo;
+    setPhotos((prev) => [photo, ...prev]);
+    onChanged();
+  }
+
   async function onPickFile(file: File | null) {
     if (!file) return;
     setUploading(true);
+    setPermError(null);
     try {
-      const dataUrl = await compressImageFile(file);
-      const res = await fetch("/api/photos", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ day, data_url: dataUrl }),
-      });
-      if (!res.ok) return;
-      const photo = (await res.json()) as Photo;
-      setPhotos((prev) => [photo, ...prev]);
-      onChanged();
+      await uploadDataUrl(await compressImageFile(file));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  async function onAddPhoto() {
+    setPermError(null);
+    setUploading(true);
+    try {
+      const picked = await pickPhotoForNanal(fileRef.current);
+      if (picked?.dataUrl) {
+        await uploadDataUrl(picked.dataUrl);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "photo_permission_denied") {
+        setPermError(
+          "사진 접근이 거부되었습니다. iPhone 설정 → 나날 → 사진/카메라 접근을 허용해 주세요.",
+        );
+      } else {
+        setPermError("사진을 불러오지 못했습니다. 다시 시도해 주세요.");
+      }
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -126,15 +153,14 @@ export function DaySheet({
                 type="button"
                 className="add-photo"
                 disabled={uploading || photos.length >= 12}
-                onClick={() => fileRef.current?.click()}
+                onClick={() => void onAddPhoto()}
               >
                 {uploading ? "올리는 중" : "+ 사진"}
               </button>
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
-                capture="environment"
+                accept="image/*,image/heic,image/heif"
                 hidden
                 onChange={(e) => void onPickFile(e.target.files?.[0] ?? null)}
               />
@@ -182,6 +208,7 @@ export function DaySheet({
                 onBlur={() => void saveEntry({ memo: entry.memo })}
               />
             </label>
+            {permError ? <p className="perm-error">{permError}</p> : null}
             <p className="save-hint">{saving ? "저장 중…" : "변경 사항은 자동 저장됩니다"}</p>
           </>
         )}
