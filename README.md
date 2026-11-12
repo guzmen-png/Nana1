@@ -20,17 +20,25 @@ env -u DATABASE_URL npm run dev
 - 홈 화면 추가용 PWA 매니페스트
 - Capacitor iOS 앱 (카메라·사진 보관함 권한 포함)
 
+## Mac 앱 설치
+
+업로드됨: [`install/nanal-mac-setup.zip`](./install/nanal-mac-setup.zip)
+
+1. zip을 Mac에서 풀기  
+2. `나날 Mac 설치하기.command` 더블클릭  
+3. 저장소 설치 후 `나날.app` 실행 (사진/카메라 권한 포함)
+
+또는 저장소를 clone 한 뒤 `install/mac/설치하기.command` 를 실행하세요.
+
 ## 아이폰 앱 설치 파일
 
-사진 접근 권한이 포함된 Xcode 프로젝트 zip:
+사진 접근 권한이 포함된 Xcode 프로젝트 zip (GitHub에 업로드됨):
 
 ```bash
 npm run ios:package
-# → dist/nanal-ios-xcode.zip
+# → install/nanal-ios-xcode.zip
 ```
 
-Mac에서 `ios/App/App.xcodeproj` 를 열고 Signing Team을 선택한 뒤 iPhone에 Run 하면 설치됩니다. 자세한 내용은 zip 안의 `INSTALL_KR.md` 를 보세요.
+Mac에서 `ios/App/App.xcodeproj` 를 열고 Signing Team을 선택한 뒤 iPhone에 Run 하면 설치됩니다.
 
-권한 문구(`Info.plist`):
-
-- 사진 보관함 / 카메라 / 보관함 저장
+권한 문구(`Info.plist`): 사진 보관함 / 카메라 / 보관함 저장
