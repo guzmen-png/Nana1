@@ -20,6 +20,8 @@
 # production
 /build
 /dist/nanal-ios-staging/
+/dist/nanal-mac-setup-staging/
+/dist-mac/
 
 # Capacitor local
 ios/App/Pods/
