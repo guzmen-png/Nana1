@@ -38,9 +38,9 @@ export async function pickPhotoForNanal(
       }
 
       const photo = await Camera.getPhoto({
-        quality: 85,
+        quality: 82,
         allowEditing: false,
-        resultType: CameraResultType.Uri,
+        resultType: CameraResultType.DataUrl,
         source: CameraSource.Prompt,
         promptLabelHeader: "사진 추가",
         promptLabelPhoto: "보관함에서 선택",
@@ -48,7 +48,7 @@ export async function pickPhotoForNanal(
         promptLabelCancel: "취소",
       });
 
-      if (photo.dataUrl) {
+      if (photo.dataUrl?.startsWith("data:image/")) {
         return { dataUrl: photo.dataUrl, source: "native" };
       }
       if (photo.webPath) {

@@ -6,6 +6,14 @@ import { CalendarView } from "@/components/CalendarView";
 import { DaySheet } from "@/components/DaySheet";
 import { ProjectsView } from "@/components/ProjectsView";
 import { TabBar } from "@/components/TabBar";
+import { ThemePicker } from "@/components/ThemePicker";
+import {
+  applyTheme,
+  getTheme,
+  loadStoredThemeId,
+  saveThemeId,
+  type ThemeId,
+} from "@/lib/theme";
 
 export function AppShell() {
   const now = new Date();
@@ -17,12 +25,20 @@ export function AppShell() {
   const [viewerName, setViewerName] = useState("나날");
   const [simulated, setSimulated] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [themeId, setThemeId] = useState<ThemeId>("mist-teal");
+  const [themeOpen, setThemeOpen] = useState(false);
 
   const loadProjects = useCallback(() => {
     fetch("/api/projects")
       .then((r) => r.json())
       .then((data: { projects?: Project[] }) => setProjects(data.projects ?? []))
       .catch(() => setProjects([]));
+  }, []);
+
+  useEffect(() => {
+    const id = loadStoredThemeId();
+    setThemeId(id);
+    applyTheme(getTheme(id));
   }, []);
 
   useEffect(() => {
@@ -49,6 +65,12 @@ export function AppShell() {
     loadProjects();
   }
 
+  function changeTheme(id: ThemeId) {
+    setThemeId(id);
+    applyTheme(getTheme(id));
+    saveThemeId(id);
+  }
+
   return (
     <div className="app-shell">
       <header className="top-bar">
@@ -59,18 +81,30 @@ export function AppShell() {
             {simulated ? " · 미리보기" : ""}
           </p>
         </div>
-        <button
-          type="button"
-          className="today-chip"
-          onClick={() => {
-            const d = new Date();
-            setYear(d.getFullYear());
-            setMonth(d.getMonth() + 1);
-            setTab("calendar");
-          }}
-        >
-          오늘
-        </button>
+        <div className="top-actions">
+          <button
+            type="button"
+            className="icon-chip"
+            onClick={() => setThemeOpen(true)}
+            aria-label="테마 색 변경"
+            title="테마 색"
+          >
+            <span className="theme-dot" style={{ background: "var(--teal)" }} aria-hidden />
+            테마
+          </button>
+          <button
+            type="button"
+            className="today-chip"
+            onClick={() => {
+              const d = new Date();
+              setYear(d.getFullYear());
+              setMonth(d.getMonth() + 1);
+              setTab("calendar");
+            }}
+          >
+            오늘
+          </button>
+        </div>
       </header>
 
       <main className="main-pane">
@@ -98,6 +132,14 @@ export function AppShell() {
           projects={projects}
           onClose={() => setSelectedDay(null)}
           onChanged={bump}
+        />
+      ) : null}
+
+      {themeOpen ? (
+        <ThemePicker
+          value={themeId}
+          onChange={changeTheme}
+          onClose={() => setThemeOpen(false)}
         />
       ) : null}
     </div>
