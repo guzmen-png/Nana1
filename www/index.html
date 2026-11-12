@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>나날</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #18212b;
+        --mist: #d7e5ee;
+        --teal: #0f6b5c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: "Apple SD Gothic Neo", "IBM Plex Sans KR", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--mist), #f3f7fa);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      main {
+        width: min(420px, 100%);
+        text-align: center;
+      }
+      h1 {
+        font-family: "Song Myung", "Apple Myungjo", serif;
+        font-size: 3rem;
+        font-weight: 400;
+        margin: 0 0 12px;
+      }
+      p {
+        margin: 0 0 18px;
+        line-height: 1.5;
+        opacity: 0.8;
+      }
+      code {
+        display: block;
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>나날</h1>
+      <p>
+        아이폰 앱 셸입니다. 배포된 웹 주소가 연결되면 캘린더가 열립니다.
+        <code id="hint">NANAL_SERVER_URL 을 capacitor.config 에 설정하세요</code>
+      </p>
+    </main>
+    <script>
+      // Capacitor native 빌드에서 server.url 이 있으면 이 페이지 대신 원격 앱이 로드됩니다.
+      document.getElementById("hint").textContent =
+        location.origin + " (로컬 셸)";
+    </script>
+  </body>
+</html>

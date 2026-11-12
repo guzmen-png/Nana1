@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+
+# install/mac/나날.app/Contents/MacOS -> repo root
+ROOT="$(cd "$(dirname "$0")/../../../../.." && pwd)"
+cd "$ROOT"
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+osascript <<'APPLESCRIPT' >/dev/null 2>&1 || true
+display notification "나날을 시작하는 중…" with title "나날"
+APPLESCRIPT
+
+if ! command -v node >/dev/null 2>&1; then
+  osascript -e 'display dialog "Node.js LTS가 필요합니다.\nhttps://nodejs.org 에서 설치한 뒤 다시 실행하세요." buttons {"확인"} default button 1 with title "나날"'
+  exit 1
+fi
+
+if [ ! -d "$ROOT/node_modules/electron" ] || [ ! -d "$ROOT/node_modules/next" ]; then
+  osascript -e 'display dialog "아직 설치가 끝나지 않았습니다.\ninstall/mac/설치하기.command 를 먼저 실행하세요." buttons {"확인"} default button 1 with title "나날"'
+  exit 1
+fi
+
+if [ ! -d "$ROOT/.next" ]; then
+  env -u DATABASE_URL npm run build
+fi
+
+exec npx electron "$ROOT/electron/main.mjs"
